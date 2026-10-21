@@ -1,0 +1,11 @@
+{
+    "balance": 0,
+    "transactions": [
+        {
+            "type": "доходы",
+            "category": "зарпалата с доставки",
+            "amount": 800.0
+        }
+    ],
+    "goals": []
+}

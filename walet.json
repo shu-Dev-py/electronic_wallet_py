@@ -3,8 +3,9 @@
     "transactions": [
         {
             "type": "доходы",
-            "category": "зарпалата с доставки",
-            "amount": 800.0
+            "category": "зп",
+            "amount": 70000.0,
+            "date": "22.10.26"
         }
     ],
     "goals": []

@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 
@@ -15,7 +16,13 @@ def save_data(data):
 
 
 def calculate_balance(data):
-    pass
+    total=0
+    for tx in data["transactions"]:
+        if tx["type"]=="доходы":
+            total+=tx["amount"]
+        if tx["type"]=="расходы":
+            total-=tx["amount"]
+    return total
 
 
 
@@ -40,14 +47,32 @@ def add_transactions(data):
         print("ошибка: сумма должна быть числом!")
         return
 
+    today_str = datetime.today().strftime("%d.%m.%y")
+    print(f"операция совершена сегодня{today_str}?")
+    print("yes/no")
+    date_choice=input("введите y/n:")
+    if date_choice=="y":
+        tx_date=today_str
+    elif date_choice=="n":
+        day_input=input("введите день в который была совершена операция:")
+        current_month_year=datetime.now().strftime(".%m.%y")
+
+        if len(day_input)==1:
+            day_input="o"+day_input
+
+        tx_date=day_input+current_month_year
+    else:
+        print("неверный выбор ставим сегодняшнюю дату")
+        tx_date=today_str
+
     new_tx = {
         "type":tx_type,
         "category":category,
-        "amount":amount
+        "amount":amount,
+        "date":tx_date
     }
     data["transactions"].append(new_tx)
-    print (f"успешно добавлен: {tx_type} на сумму {amount} руб. в категорию '{category}'!")
-
+    print (f"успешно добавлен: {tx_type} на сумму {amount} руб. в категорию '{category}' выполненная {tx_date} !!!")
 
 
 
@@ -63,7 +88,8 @@ def main():
         choice = input("выберете действие:")
 
         if choice=="1":
-            print("Вы выбрали баланс (функция в разработке)")
+            current_balance=calculate_balance(data)
+            print(f"текущий баланс равен ={current_balance} руб!")
         elif choice =="2":
             add_transactions(data)
             save_data(data)
@@ -72,8 +98,6 @@ def main():
             break
         else:
             print("ввод был совершен не верно введите снова!")
-
-
 
 
 if __name__ == "__main__":

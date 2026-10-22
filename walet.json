@@ -1,23 +1,16 @@
 {
-    "balance": 0,
     "transactions": [
         {
             "type": "доходы",
             "category": "зп",
-            "amount": 70000.0,
-            "date": "22.10.26"
+            "amount": 799999.0,
+            "date": "23.10.26"
         },
         {
             "type": "расходы",
             "category": "продукты",
-            "amount": 4000.0,
-            "date": "25.10.26"
-        },
-        {
-            "type": "расходы",
-            "category": "Энергос",
-            "amount": 10000.0,
-            "date": "22.10.26"
+            "amount": 1777.0,
+            "date": "23.10.26"
         }
     ],
     "goals": []

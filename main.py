@@ -4,15 +4,24 @@ import os
 
 
 def load_data():
-    if not os.path.exists("walet.jason"):
+    if not os.path.exists("walet.json"):
         return {"balance":0,"transactions":[],"goals":[]}
     with open("walet.json","r", encoding="utf-8") as f:
         return json.load(f)
 
 
+
 def save_data(data):
     with open("walet.json","w", encoding="utf-8") as f:
         json.dump(data,f,ensure_ascii=False,indent=4)
+
+
+def clear_data(data):
+    data.clear()
+    data["transactions"]=[]
+    data["goals"]=[]
+    save_data(data)
+    print("\n все данные успешно обнулены, кошелек очищен!")
 
 
 
@@ -75,6 +84,8 @@ def add_transactions(data):
     data["transactions"].append(new_tx)
     print (f"успешно добавлен: {tx_type} на сумму {amount} руб. в категорию '{category}' выполненная {tx_date} !!!")
 
+
+
 def find_most_expensive_day(data):
     daily_expenses = {}
 
@@ -102,8 +113,9 @@ def main():
     while True:
         print("\n1. посмотреть баланс")
         print("2. Добавить операцию")
-        print("3. Выход")
-        print("4. Аналитика расходов")
+        print("3. Аналитика расходов")
+        print("4. Сброс данных кошелька")
+        print("5. Выход")
 
         choice = input("выберете действие:")
 
@@ -113,10 +125,7 @@ def main():
         elif choice =="2":
             add_transactions(data)
             save_data(data)
-        elif choice =="3":
-            print("До свидания!")
-            break
-        elif choice == "4":
+        elif choice == "3":
             result = find_most_expensive_day(data)
 
             print("\n=====================================")
@@ -132,6 +141,14 @@ def main():
                 print(f" Сумма трат в этот день: {total_spent} руб.")
 
             print("=====================================")
+        elif choice =="4":
+            confirm = input("вы точно хотите удалить все данные (y/n) ?")
+            if confirm =="y":
+                clear_data(data)
+
+        elif choice =="5":
+            print("До свидания!")
+            break
         else:
             print("ввод был совершен не верно введите снова!")
 

@@ -1,9 +1,8 @@
 import sys
 import subprocess
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFrame,QGridLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFrame,QGridLayout,QHBoxLayout
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QTimer
-
 
 class SiteCard(QFrame):
     def __init__(self,site_name):
@@ -65,8 +64,8 @@ class App(QWidget):
         self.setWindowTitle("Адаптивное окно")
         self.resize(400, 100)
 
-        self.hosts = ["test.com", "vk.com", "yandex.ru", "error_test.com", "googl.com"]
 
+        self.hosts = ["test.com", "vk.com", "yandex.ru", "error_test.com", "googl.com"]
 
         main_layout = QGridLayout()
         self.cards = {}
@@ -76,13 +75,12 @@ class App(QWidget):
             self.cards[host] = card
             main_layout.addWidget(card,0,index)
 
-        self.setLayout(main_layout)
 
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_status)
         self.setLayout(main_layout)
-        self.timer.start(3000)
+        self.timer.start(10000)
 
         self.update_status()
 
@@ -109,7 +107,6 @@ class App(QWidget):
             except Exception as e:
                 print(f"Ошибка при проверке {host}: {e}")
                 self.cards[host].site_ping(False, 0)
-
 
 app = QApplication(sys.argv)
 window =App()

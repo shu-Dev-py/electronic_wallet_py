@@ -1,9 +1,8 @@
 import sys
+import time
 import subprocess
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QFrame,QGridLayout,QHBoxLayout
-from PyQt6.QtCore import Qt
-from PyQt6.QtCore import QTimer
-
+from PyQt6.QtWidgets import QApplication,QWidget,QVBoxLayout,QFrame,QLabel,QGridLayout
+from PyQt6.QtCore import Qt,QThread, pyqtSignal
 class SiteCard(QFrame):
     def __init__(self,site_name):
         super().__init__()
@@ -58,57 +57,70 @@ class SiteCard(QFrame):
                 }
             """)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+class PingWorker(QThread):
+
+    result_signal=pyqtSignal(str,int)
+
+    def __init__(self,hosts_list):
+        super().__init__()
+        self.hosts = hosts_list
+
+    def run(self):
+        while True:
+            for host in self.hosts:
+                try:
+                    response = subprocess.run(
+                        ["ping", "-n", "1", host],
+                        capture_output=True,
+                    )
+                    try:
+                        stdout_text = response.stdout.decode("cp866", errors= "ignore")
+                    except:
+                        stdout_text = response.stdout.decode("utf-8", errors="ignore")
+
+                    if response.returncode == 0 and "время=" in stdout_text:
+                        text_after_time = stdout_text.split("время=")[1]
+                        ping_str = text_after_time.split("мс")[0]
+                        ping_init =int(ping_str.strip())
+                        self.result_signal.emit(host,ping_init)
+                    else:
+                        self.result_signal.emit(host,0)
+                except Exception as e:
+                    print(f"ошибка внутри потока при проверке сайта{host}: {e}")
+                    self.result_signal.emit(host,0)
+            time.sleep(6)
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Адаптивное окно")
-        self.resize(400, 100)
+        self.setWindowTitle("тест потоков")
+        self.resize(400,100)
+        self.hosts =["test.com","ue.bot", "vk.com", "yandex.ru", "error_test.com", "googl.com"]
 
+        main_Layout = QGridLayout()
 
-        self.hosts = ["test.com", "vk.com", "yandex.ru", "error_test.com", "googl.com"]
-
-        main_layout = QGridLayout()
         self.cards = {}
-
-        for index, host in enumerate(self.hosts):
+        for index,host in enumerate(self.hosts):
             card = SiteCard(host)
             self.cards[host] = card
-            main_layout.addWidget(card,0,index)
-
-
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_status)
-        self.setLayout(main_layout)
-        self.timer.start(10000)
-
-        self.update_status()
-
-    def update_status(self):
-        for host in self.hosts:
-            try:
-                response = subprocess.run(
-                    ["ping", "-n", "1", host],
-                    capture_output=True,
-                    text=True,
-                    encoding="cp866"
-                )
-
-                if response.returncode == 0 and "время=" in response.stdout:
-                    # Режем аккуратно и безопасно
-                    text_after_time = response.stdout.split("время=")[1]
-                    ping_str = text_after_time.split("мс")[0]
-                    ping_int = int(ping_str.strip())
-
-                    self.cards[host].site_ping(True, ping_int)
-                else:
-                    self.cards[host].site_ping(False, 0)
-
-            except Exception as e:
-                print(f"Ошибка при проверке {host}: {e}")
-                self.cards[host].site_ping(False, 0)
-
+            main_Layout.addWidget(card, 0 ,index)
+        self.setLayout(main_Layout)
+        self.worker = PingWorker(self.hosts)
+        self.worker.result_signal.connect(self.update_card_status)
+        self.worker.start()
+    def update_card_status(self,host,ping_init):
+        card = self.cards[host]
+        if ping_init>0:
+            card.site_ping(True,ping_init)
+        else:
+            card.site_ping(False, 0)
+    def close_event(self,event):
+        self.worker.terminate()
+        self.worker.wait()
+        event.accept()
 app = QApplication(sys.argv)
-window =App()
+window = App()
 window.show()
 app.exec()
+

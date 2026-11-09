@@ -14,7 +14,7 @@ class SiteCard(QFrame):
         card_layout = QVBoxLayout()
 
         card_layout.setSpacing(3)
-        card_layout.setContentsMargins(10,10,10,10)
+        card_layout.setContentsMargins(5,5,5,5)
         card_layout.addWidget(self.name_label)
         card_layout.addWidget(self.ping_label)
 
@@ -42,7 +42,7 @@ class SiteCard(QFrame):
             self.setStyleSheet("""
                    SiteCard {
                        background-color: #99ff99; 
-                       border: 6px solid #000000; 
+                       border: 2px solid #000000; 
                        border-radius: 8px;
                    }
                """)
@@ -52,7 +52,7 @@ class SiteCard(QFrame):
             self.setStyleSheet("""
               SiteCard {
                     background-color: #993300; 
-                    border: 6px solid #000000; 
+                    border: 2px solid #000000; 
                     border-radius: 8px;
                 }
             """)
@@ -96,9 +96,17 @@ class App(QWidget):
         super().__init__()
         self.setWindowTitle("тест потоков")
         self.resize(400,100)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
         self.hosts =["test.com","ue.bot", "vk.com", "yandex.ru", "error_test.com", "googl.com"]
 
         main_Layout = QGridLayout()
+
+        self.setStyleSheet("""
+        App{
+        background-color: #999999
+        }
+        """)
 
         self.cards = {}
         for index,host in enumerate(self.hosts):
